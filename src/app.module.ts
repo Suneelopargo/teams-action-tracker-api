@@ -8,6 +8,7 @@ import { MeetingModule } from './modules/meeting/meeting.module';
 import { ActionItemModule } from './modules/action-item/action-item.module';
 import { TranscriptModule } from './modules/transcript/transcript.module';
 import { EmailModule } from './modules/email/email.module';
+import { OpenAiModule } from './modules/openai/openai.module';
 
 @Module({
    imports: [
@@ -20,6 +21,7 @@ import { EmailModule } from './modules/email/email.module';
     ActionItemModule,
     TranscriptModule,
     EmailModule,
+    OpenAiModule,
   ],
   controllers: [AppController],
   providers: [AppService],
