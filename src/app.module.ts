@@ -4,6 +4,10 @@ import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { PrismaModule } from './prisma/prisma.module';
 import { UserModule } from './modules/user/user.module';
+import { MeetingModule } from './modules/meeting/meeting.module';
+import { ActionItemModule } from './modules/action-item/action-item.module';
+import { TranscriptModule } from './modules/transcript/transcript.module';
+import { EmailModule } from './modules/email/email.module';
 
 @Module({
    imports: [
@@ -12,6 +16,10 @@ import { UserModule } from './modules/user/user.module';
     }),
     PrismaModule,
     UserModule,
+    MeetingModule,
+    ActionItemModule,
+    TranscriptModule,
+    EmailModule,
   ],
   controllers: [AppController],
   providers: [AppService],
