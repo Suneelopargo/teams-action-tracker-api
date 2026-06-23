@@ -15,3 +15,95 @@ model User {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+
+model Meeting {
+  id              Int           @id @default(autoincrement())
+  graphMeetingId  String?       @unique
+  title           String
+  meetingDate     DateTime
+  source          String        @default("TEAMS")
+
+  participants    Participant[]
+  transcripts     Transcript[]
+  actionItems     ActionItem[]
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
+
+model Participant {
+  id          Int      @id @default(autoincrement())
+
+  meetingId   Int
+  meeting     Meeting  @relation(fields: [meetingId], references: [id])
+
+  name        String
+  email       String?
+
+  createdAt   DateTime @default(now())
+}
+
+model Transcript {
+  id            Int      @id @default(autoincrement())
+
+  meetingId     Int
+  meeting       Meeting  @relation(fields: [meetingId], references: [id])
+
+  transcriptText String   @db.LongText
+
+  sourceFile     String?
+  sourceType     String?
+
+  createdAt      DateTime @default(now())
+}
+
+model ActionItem {
+  id            Int      @id @default(autoincrement())
+
+  meetingId     Int
+  meeting       Meeting  @relation(fields: [meetingId], references: [id])
+
+  ownerName     String
+  ownerEmail    String?
+
+  actionText    String   @db.LongText
+
+  dueDate       DateTime?
+
+  priority      String   @default("MEDIUM")
+
+  status        String   @default("OPEN")
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model EmailLog {
+  id             Int      @id @default(autoincrement())
+
+  actionItemId   Int?
+
+  emailTo        String
+
+  subject        String
+
+  status         String
+
+  sentAt         DateTime?
+
+  createdAt      DateTime @default(now())
+}
+
+model AppSetting {
+  id                Int      @id @default(autoincrement())
+
+  autoSendEmails    Boolean  @default(true)
+
+  reminderEnabled   Boolean  @default(true)
+
+  openAiModel       String   @default("gpt-4o")
+
+  createdAt         DateTime @default(now())
+
+  updatedAt         DateTime @updatedAt
+}
