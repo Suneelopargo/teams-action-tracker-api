@@ -102,4 +102,13 @@ export class EmailController {
       message: `Email sent to ${recipientEmail}`,
     };
   }
+
+  @Get('logs')
+async getLogs() {
+  return this.prisma.emailLog.findMany({
+    orderBy: {
+      createdAt: 'desc',
+    },
+  });
+}
 }

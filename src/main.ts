@@ -26,6 +26,11 @@ async function bootstrap() {
     }),
   );
 
+  app.enableCors({
+  origin: 'http://localhost:5173',
+  credentials: true,
+});
+
   const config = new DocumentBuilder()
     .setTitle('Teams Action Tracker API')
     .setDescription('Teams Meeting Action Tracker')

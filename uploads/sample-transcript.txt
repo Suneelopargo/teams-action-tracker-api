@@ -1,5 +1,0 @@
-John will complete API integration by Friday.
-
-Mary will prepare deployment checklist.
-
-Suneel will coordinate production rollout.

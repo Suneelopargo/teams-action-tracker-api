@@ -12,7 +12,7 @@ export class ReminderService {
   ) { }
 
   // Testing: every minute
-  @Cron('* * * * *')
+  @Cron('0 9 * * *')
 
   // Production:
   // @Cron('0 9 * * *')
