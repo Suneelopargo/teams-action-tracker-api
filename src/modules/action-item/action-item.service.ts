@@ -211,4 +211,72 @@ export class ActionItemService {
       },
     });
   }
+
+  async updateStatus(
+  id: number,
+  status: string,
+) {
+  const actionItem =
+    await this.prisma.actionItem.findUnique({
+      where: {
+        id,
+      },
+    });
+
+  if (!actionItem) {
+    throw new NotFoundException(
+      'Action Item not found',
+    );
+  }
+
+  return this.prisma.actionItem.update({
+    where: {
+      id,
+    },
+    data: {
+      status,
+    },
+  });
+}
+
+async getStats() {
+  const total =
+    await this.prisma.actionItem.count();
+
+  const open =
+    await this.prisma.actionItem.count({
+      where: {
+        status: 'OPEN',
+      },
+    });
+
+  const inProgress =
+    await this.prisma.actionItem.count({
+      where: {
+        status: 'IN_PROGRESS',
+      },
+    });
+
+  const completed =
+    await this.prisma.actionItem.count({
+      where: {
+        status: 'COMPLETED',
+      },
+    });
+
+  const blocked =
+    await this.prisma.actionItem.count({
+      where: {
+        status: 'BLOCKED',
+      },
+    });
+
+  return {
+    total,
+    open,
+    inProgress,
+    completed,
+    blocked,
+  };
+}
 }

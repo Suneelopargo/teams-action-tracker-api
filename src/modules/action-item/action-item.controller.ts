@@ -3,7 +3,11 @@ import {
   Post,
   Get,
   Param,
+  Body,
+  Put,
 } from '@nestjs/common';
+import { UpdateStatusDto }
+from './dto/update-status.dto';
 
 import { ApiTags } from '@nestjs/swagger';
 
@@ -41,4 +45,22 @@ export class ActionItemController {
       Number(meetingId),
     );
   }
+
+  @Put(':id/status')
+async updateStatus(
+  @Param('id') id: string,
+
+  @Body()
+  dto: UpdateStatusDto,
+) {
+  return this.actionItemService.updateStatus(
+    Number(id),
+    dto.status,
+  );
+}
+
+@Get('stats')
+async getStats() {
+  return this.actionItemService.getStats();
+}
 }

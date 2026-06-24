@@ -9,7 +9,7 @@ export class ReminderService {
   constructor(
     private prisma: PrismaService,
     private emailService: EmailService,
-  ) {}
+  ) { }
 
   // Testing: every minute
   @Cron('* * * * *')
@@ -28,7 +28,12 @@ export class ReminderService {
     const actionItems =
       await this.prisma.actionItem.findMany({
         where: {
-          status: 'OPEN',
+          status: {
+            in: [
+              'OPEN',
+              'IN_PROGRESS',
+            ],
+          },
 
           reminderSent: {
             lt: 4,
@@ -78,11 +83,10 @@ Priority:
 ${item.priority}
 
 Due Date:
-${
-  item.dueDate
-    ? item.dueDate.toDateString()
-    : 'Not Assigned'
-}
+${item.dueDate
+            ? item.dueDate.toDateString()
+            : 'Not Assigned'
+          }
 
 Please update the status.
 
@@ -138,8 +142,7 @@ Teams Action Tracker
               emailTo:
                 item.ownerEmail || 'UNKNOWN',
               subject:
-                `Reminder #${
-                  item.reminderSent + 1
+                `Reminder #${item.reminderSent + 1
                 }: Action Item Pending`,
               status: 'FAILED',
             },
