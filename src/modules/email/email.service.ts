@@ -1,35 +1,43 @@
 import { Injectable } from '@nestjs/common';
+import * as nodemailer from 'nodemailer';
 import { ConfigService } from '@nestjs/config';
-
-import { Client } from '@microsoft/microsoft-graph-client';
-import { ClientSecretCredential } from '@azure/identity';
 
 @Injectable()
 export class EmailService {
-  private graphClient: Client;
+
+  private transporter: nodemailer.Transporter;
 
   constructor(
     private readonly configService: ConfigService,
   ) {
-    const credential =
-      new ClientSecretCredential(
-        this.configService.get<string>('AZURE_TENANT_ID')!,
-        this.configService.get<string>('AZURE_CLIENT_ID')!,
-        this.configService.get<string>('AZURE_CLIENT_SECRET')!,
-      );
 
-    this.graphClient = Client.initWithMiddleware({
-      authProvider: {
-        getAccessToken: async () => {
-          const token =
-            await credential.getToken(
-              'https://graph.microsoft.com/.default',
-            );
+    this.transporter =
+      nodemailer.createTransport({
+        host:
+          this.configService.get(
+            'SMTP_HOST',
+          ),
 
-          return token?.token || '';
+        port: Number(
+          this.configService.get(
+            'SMTP_PORT',
+          ),
+        ),
+
+        secure: false,
+
+        auth: {
+          user:
+            this.configService.get(
+              'SMTP_USER',
+            ),
+
+          pass:
+            this.configService.get(
+              'SMTP_PASS',
+            ),
         },
-      } as any,
-    });
+      });
   }
 
   generateEmail(
@@ -38,12 +46,15 @@ export class EmailService {
     priority: string,
     meetingTitle: string,
   ) {
+
     return {
       subject: `Follow-up: ${meetingTitle}`,
+
       body: `
 Hi ${ownerName},
 
-During the meeting "${meetingTitle}", the following action item was assigned to you:
+During the meeting "${meetingTitle}",
+the following action item was assigned to you:
 
 • ${actionText}
 
@@ -62,28 +73,19 @@ Teams Meeting Action Tracker
     subject: string,
     body: string,
   ) {
-    await this.graphClient
-      .api(
-        `/users/${this.configService.get(
-          'MAIL_FROM',
-        )}/sendMail`,
-      )
-      .post({
-        message: {
-          subject,
-          body: {
-            contentType: 'Text',
-            content: body,
-          },
-          toRecipients: [
-            {
-              emailAddress: {
-                address: to,
-              },
-            },
-          ],
-        },
-      });
+
+    await this.transporter.sendMail({
+      from:
+        this.configService.get(
+          'SMTP_USER',
+        ),
+
+      to,
+
+      subject,
+
+      text: body,
+    });
 
     return {
       success: true,
