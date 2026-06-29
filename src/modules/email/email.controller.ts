@@ -42,9 +42,9 @@ export class EmailController {
       });
 
     return this.emailService.generateEmail(
-      actionItem.ownerName,
-      actionItem.actionText,
-      actionItem.priority,
+      actionItem.ownerName ?? '',
+      actionItem.actionText ?? '',
+      actionItem.priority ?? '',
       meeting?.title || 'Meeting',
     );
   }
@@ -76,9 +76,9 @@ export class EmailController {
 
     const email =
       this.emailService.generateEmail(
-        actionItem.ownerName,
-        actionItem.actionText,
-        actionItem.priority,
+        actionItem.ownerName ?? '',
+        actionItem.actionText ?? '',
+        actionItem.priority ?? '',
         meeting?.title || 'Meeting',
       );
 
