@@ -5,21 +5,28 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { RegisterDto } from './dto/register.dto';
 
+import { AuthService } from './auth.service';
 
 import { LoginDto } from './dto/login.dto';
+import { RegisterDto } from './dto/register.dto';
 
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
-
 import { CurrentUser } from './decorators/current-user.decorator';
-import { AuthService } from './auth.service';
 
 @Controller('auth')
 export class AuthController {
+
   constructor(
     private readonly authService: AuthService,
   ) {}
+
+  @Post('register')
+  register(
+    @Body() dto: RegisterDto,
+  ) {
+    return this.authService.register(dto);
+  }
 
   @Post('login')
   login(
@@ -33,16 +40,25 @@ export class AuthController {
   profile(
     @CurrentUser() user: any,
   ) {
-    return user;
+
+    return {
+
+      success: true,
+
+      data: {
+
+        id: user.id,
+
+        name: user.name,
+
+        email: user.email,
+
+        role: user.role,
+
+      }
+
+    };
+
   }
 
-  @Post('register')
-register(
-  @Body()
-  dto: RegisterDto,
-) {
-
-  return this.authService.register(dto);
-
-}
 }
