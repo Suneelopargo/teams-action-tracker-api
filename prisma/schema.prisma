@@ -21,17 +21,17 @@ enum UserRole {
 //////////////////////////////////////////////////////////
 
 model User {
-  id        Int      @id @default(autoincrement())
-  name      String
-  email     String   @unique
-  password  String
-  role      UserRole @default(PARTICIPANT)
-  isActive  Boolean  @default(true)
+  id       Int      @id @default(autoincrement())
+  name     String
+  email    String   @unique
+  password String
+  role     UserRole @default(PARTICIPANT)
+  isActive Boolean  @default(true)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  assignedActionItems ActionItem[] @relation("AssignedUser")
+  assignedActionItems ActionItem[]  @relation("AssignedUser")
   participants        Participant[]
 }
 
@@ -47,8 +47,8 @@ model Meeting {
   source         String   @default("TEAMS")
 
   participants Participant[]
-  transcripts Transcript[]
-  actionItems ActionItem[]
+  transcripts  Transcript[]
+  actionItems  ActionItem[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -59,7 +59,7 @@ model Meeting {
 //////////////////////////////////////////////////////////
 
 model Participant {
-  id        Int @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
   meetingId Int
   meeting   Meeting @relation(fields: [meetingId], references: [id])
@@ -85,7 +85,7 @@ model Transcript {
   id Int @id @default(autoincrement())
 
   meetingId Int
-  meeting Meeting @relation(fields: [meetingId], references: [id])
+  meeting   Meeting @relation(fields: [meetingId], references: [id])
 
   transcriptText String @db.LongText
 
@@ -102,36 +102,42 @@ model Transcript {
 //////////////////////////////////////////////////////////
 
 model ActionItem {
-  id               Int       @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-  meetingId        Int
-  meeting          Meeting   @relation(fields: [meetingId], references: [id])
+  meetingId Int
+  meeting   Meeting @relation(fields: [meetingId], references: [id])
 
-  ownerName        String?
-  ownerEmail       String?
+  ownerName  String?
+  ownerEmail String?
 
   // Existing functionality
-  actionText       String?   @db.LongText
+  actionText String? @db.LongText
 
   // New functionality
-  title            String?
-  description      String?   @db.LongText
+  title       String?
+  description String? @db.LongText
 
   assignedToUserId Int?
   assignedUser     User? @relation("AssignedUser", fields: [assignedToUserId], references: [id])
 
-  priority         String?
-  status           String?
+  priority String?
+  status   String?
 
-  dueDate          DateTime?
+  dueDate DateTime?
 
-  reminderSent     Int        @default(0)
-  lastReminder     DateTime?
+  reminderSent Int       @default(0)
+  lastReminder DateTime?
 
-  createdAt        DateTime   @default(now())
-  updatedAt        DateTime   @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  emailLogs        EmailLog[]
+  emailLogs EmailLog[]
+
+  @@index([meetingId])
+  @@index([assignedToUserId])
+  @@index([ownerEmail])
+  @@index([status])
+  @@index([lastReminder])
 }
 
 //////////////////////////////////////////////////////////
@@ -142,11 +148,11 @@ model EmailLog {
   id Int @id @default(autoincrement())
 
   actionItemId Int?
-  actionItem ActionItem? @relation(fields: [actionItemId], references: [id])
+  actionItem   ActionItem? @relation(fields: [actionItemId], references: [id])
 
   emailTo String
   subject String
-  status String
+  status  String
 
   sentAt DateTime?
 
