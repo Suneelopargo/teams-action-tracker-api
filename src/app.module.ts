@@ -11,6 +11,7 @@ import { EmailModule } from './modules/email/email.module';
 import { OpenAiModule } from './modules/openai/openai.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ReminderModule } from './modules/reminder/reminder.module';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
    imports: [
@@ -25,6 +26,7 @@ import { ReminderModule } from './modules/reminder/reminder.module';
     TranscriptModule,
     EmailModule,
     OpenAiModule,
+    AuthModule,
     ReminderModule,
   ],
   controllers: [AppController],

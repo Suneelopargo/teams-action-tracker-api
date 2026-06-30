@@ -7,107 +7,174 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id          Int      @id @default(autoincrement())
-  email       String   @unique
-  name        String
-  role        String   @default("USER")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+//////////////////////////////////////////////////////////
+// ENUMS
+//////////////////////////////////////////////////////////
+
+enum UserRole {
+  ADMIN
+  PARTICIPANT
 }
+
+//////////////////////////////////////////////////////////
+// USER
+//////////////////////////////////////////////////////////
+
+model User {
+  id       Int      @id @default(autoincrement())
+  name     String
+  email    String   @unique
+  password String
+  role     UserRole @default(PARTICIPANT)
+  isActive Boolean  @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  assignedActionItems ActionItem[]  @relation("AssignedUser")
+  participants        Participant[]
+}
+
+//////////////////////////////////////////////////////////
+// MEETING
+//////////////////////////////////////////////////////////
 
 model Meeting {
-  id              Int           @id @default(autoincrement())
-  graphMeetingId  String?       @unique
-  title           String
-  meetingDate     DateTime
-  source          String        @default("TEAMS")
+  id             Int      @id @default(autoincrement())
+  graphMeetingId String?  @unique
+  title          String
+  meetingDate    DateTime
+  source         String   @default("TEAMS")
 
-  participants    Participant[]
-  transcripts     Transcript[]
-  actionItems     ActionItem[]
+  participants Participant[]
+  transcripts  Transcript[]
+  actionItems  ActionItem[]
 
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
+
+//////////////////////////////////////////////////////////
+// PARTICIPANT
+//////////////////////////////////////////////////////////
 
 model Participant {
-  id          Int      @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-  meetingId   Int
-  meeting     Meeting  @relation(fields: [meetingId], references: [id])
+  meetingId Int
+  meeting   Meeting @relation(fields: [meetingId], references: [id])
 
-  name        String
-  email       String?
+  userId Int?
+  user   User? @relation(fields: [userId], references: [id])
 
-  createdAt   DateTime @default(now())
+  name  String
+  email String?
+
+  createdAt DateTime @default(now())
+
+  @@index([meetingId])
+  @@index([userId])
+  @@index([email])
 }
+
+//////////////////////////////////////////////////////////
+// TRANSCRIPT
+//////////////////////////////////////////////////////////
 
 model Transcript {
-  id            Int      @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-  meetingId     Int
-  meeting       Meeting  @relation(fields: [meetingId], references: [id])
+  meetingId Int
+  meeting   Meeting @relation(fields: [meetingId], references: [id])
 
-  transcriptText String   @db.LongText
+  transcriptText String @db.LongText
 
-  sourceFile     String?
-  sourceType     String?
+  sourceFile String?
+  sourceType String?
 
-  createdAt      DateTime @default(now())
+  createdAt DateTime @default(now())
+
+  @@index([meetingId])
 }
+
+//////////////////////////////////////////////////////////
+// ACTION ITEM
+//////////////////////////////////////////////////////////
 
 model ActionItem {
-  id            Int      @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-  meetingId     Int
-  meeting       Meeting  @relation(fields: [meetingId], references: [id])
+  meetingId Int
+  meeting   Meeting @relation(fields: [meetingId], references: [id])
 
-  ownerName     String
-  ownerEmail    String?
+  ownerName  String?
+  ownerEmail String?
 
-  actionText    String   @db.LongText
+  // Existing functionality
+  actionText String? @db.LongText
 
-  dueDate       DateTime?
+  // New functionality
+  title       String?
+  description String? @db.LongText
 
-  priority      String   @default("MEDIUM")
+  assignedToUserId Int?
+  assignedUser     User? @relation("AssignedUser", fields: [assignedToUserId], references: [id])
 
-  status        String   @default("OPEN")
+  priority String?
+  status   String?
 
-  lastReminder  DateTime?
+  dueDate DateTime?
 
-  reminderSent  Int      @default(0)
+  reminderSent Int       @default(0)
+  lastReminder DateTime?
 
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  emailLogs EmailLog[]
+
+  @@index([meetingId])
+  @@index([assignedToUserId])
+  @@index([ownerEmail])
+  @@index([status])
+  @@index([lastReminder])
 }
+
+//////////////////////////////////////////////////////////
+// EMAIL LOG
+//////////////////////////////////////////////////////////
 
 model EmailLog {
-  id             Int      @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-  actionItemId   Int?
+  actionItemId Int?
+  actionItem   ActionItem? @relation(fields: [actionItemId], references: [id])
 
-  emailTo        String
+  emailTo String
+  subject String
+  status  String
 
-  subject        String
+  sentAt DateTime?
 
-  status         String
+  createdAt DateTime @default(now())
 
-  sentAt         DateTime?
-
-  createdAt      DateTime @default(now())
+  @@index([actionItemId])
 }
 
+//////////////////////////////////////////////////////////
+// APP SETTINGS
+//////////////////////////////////////////////////////////
+
 model AppSetting {
-  id                Int      @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-  autoSendEmails    Boolean  @default(true)
+  autoSendEmails Boolean @default(true)
 
-  reminderEnabled   Boolean  @default(true)
+  reminderEnabled Boolean @default(true)
 
-  openAiModel       String   @default("gpt-4o")
+  openAiModel String @default("gpt-4o")
 
-  createdAt         DateTime @default(now())
+  createdAt DateTime @default(now())
 
-  updatedAt         DateTime @updatedAt
+  updatedAt DateTime @updatedAt
 }

@@ -1,10 +1,12 @@
 import { Module } from '@nestjs/common';
-import { TranscriptService } from './transcript.service';
-import { TranscriptController } from './transcript.controller';
 
+import { ActionItemModule } from '../action-item/action-item.module';
+import { TranscriptController } from './transcript.controller';
+import { TranscriptService } from './transcript.service';
 
 @Module({
+  imports: [ActionItemModule],
   providers: [TranscriptService],
-  controllers: [TranscriptController]
+  controllers: [TranscriptController],
 })
 export class TranscriptModule {}

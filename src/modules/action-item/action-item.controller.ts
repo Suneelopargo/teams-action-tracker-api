@@ -1,66 +1,67 @@
 import {
+  Body,
   Controller,
-  Post,
   Get,
   Param,
-  Body,
+  Post,
   Put,
+  UseGuards,
 } from '@nestjs/common';
-import { UpdateStatusDto }
-from './dto/update-status.dto';
-
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { UserRole } from '@prisma/client';
+import type { User } from '@prisma/client';
 
 import { ActionItemService } from './action-item.service';
+import { UpdateStatusDto } from './dto/update-status.dto';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
 
 @ApiTags('Action Items')
+@ApiBearerAuth()
 @Controller('action-items')
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class ActionItemController {
-
-  constructor(
-    private readonly actionItemService: ActionItemService,
-  ) {}
+  constructor(private readonly actionItemService: ActionItemService) {}
 
   @Post('extract/:transcriptId')
-  async extract(
-    @Param('transcriptId')
-    transcriptId: string,
-  ) {
-    return this.actionItemService.extract(
-      Number(transcriptId),
-    );
+  @Roles(UserRole.ADMIN)
+  async extract(@Param('transcriptId') transcriptId: string) {
+    return this.actionItemService.extract(Number(transcriptId));
+  }
+
+  @Get('stats')
+  @Roles(UserRole.ADMIN)
+  async getStats() {
+    return this.actionItemService.getStats();
+  }
+
+  @Get('my')
+  async findMyActionItems(@CurrentUser() user: User) {
+    return this.actionItemService.findForUser(user);
   }
 
   @Get()
+  @Roles(UserRole.ADMIN)
   async findAll() {
     return this.actionItemService.findAll();
   }
 
   @Get('meeting/:meetingId')
   async findByMeeting(
-    @Param('meetingId')
-    meetingId: string,
+    @Param('meetingId') meetingId: string,
+    @CurrentUser() user: User,
   ) {
-    return this.actionItemService.findByMeeting(
-      Number(meetingId),
-    );
+    return this.actionItemService.findByMeeting(Number(meetingId), user);
   }
 
   @Put(':id/status')
-async updateStatus(
-  @Param('id') id: string,
-
-  @Body()
-  dto: UpdateStatusDto,
-) {
-  return this.actionItemService.updateStatus(
-    Number(id),
-    dto.status,
-  );
-}
-
-@Get('stats')
-async getStats() {
-  return this.actionItemService.getStats();
-}
+  async updateStatus(
+    @Param('id') id: string,
+    @Body() dto: UpdateStatusDto,
+    @CurrentUser() user: User,
+  ) {
+    return this.actionItemService.updateStatus(Number(id), dto.status, user);
+  }
 }

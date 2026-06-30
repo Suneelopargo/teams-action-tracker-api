@@ -7,11 +7,9 @@ import { OpenAiModule } from '../openai/openai.module';
 import { EmailModule } from '../email/email.module';
 
 @Module({
-  imports: [
-    OpenAiModule,
-    EmailModule,
-  ],
+  imports: [OpenAiModule, EmailModule],
   controllers: [ActionItemController],
   providers: [ActionItemService],
+  exports: [ActionItemService],
 })
 export class ActionItemModule {}
