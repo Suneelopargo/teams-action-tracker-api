@@ -8,16 +8,20 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app =
-  await NestFactory.create<NestExpressApplication>(
+  const app = await NestFactory.create<NestExpressApplication>(
     AppModule,
   );
 
+  // Security middleware
   app.use(helmet());
+
+  // Enable gzip compression
   app.use(compression());
 
+  // Global API prefix
   app.setGlobalPrefix('api');
 
+  // Global validation
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -26,11 +30,13 @@ async function bootstrap() {
     }),
   );
 
+  // CORS
   app.enableCors({
-  origin: 'http://localhost:5173',
-  credentials: true,
-});
+    origin: true, // Allow all origins for now
+    credentials: true,
+  });
 
+  // Swagger Configuration
   const config = new DocumentBuilder()
     .setTitle('Teams Action Tracker API')
     .setDescription('Teams Meeting Action Tracker')
@@ -42,15 +48,17 @@ async function bootstrap() {
 
   SwaggerModule.setup('api/docs', app, document);
 
-  await app.listen(3000);
+  // Render (or any cloud provider) provides the PORT environment variable
+  const port = parseInt(process.env.PORT || '3000', 10);
 
-  console.log(
-    `Application running at: http://localhost:3000/api`,
-  );
+  await app.listen(port, '0.0.0.0');
 
-  console.log(
-    `Swagger running at: http://localhost:3000/api/docs`,
-  );
+  console.log('========================================');
+  console.log(`🚀 Teams Action Tracker API Started`);
+  console.log(`🌐 Port      : ${port}`);
+  console.log(`📚 Swagger   : /api/docs`);
+  console.log(`🔗 API Prefix: /api`);
+  console.log('========================================');
 }
 
 bootstrap();
