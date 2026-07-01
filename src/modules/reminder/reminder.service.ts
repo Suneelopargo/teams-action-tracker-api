@@ -11,7 +11,7 @@ export class ReminderService {
     private emailService: EmailService,
   ) {}
 
-  @Cron('0 9 * * *')
+  @Cron('* * * * *')
   async sendDailyReminders() {
     console.log('Running Reminder Job...');
 

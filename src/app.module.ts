@@ -12,6 +12,7 @@ import { OpenAiModule } from './modules/openai/openai.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ReminderModule } from './modules/reminder/reminder.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { GraphModule } from './modules/graph/graph.module';
 
 @Module({
    imports: [
@@ -26,6 +27,7 @@ import { AuthModule } from './modules/auth/auth.module';
     TranscriptModule,
     EmailModule,
     OpenAiModule,
+    GraphModule,
     AuthModule,
     ReminderModule,
   ],
