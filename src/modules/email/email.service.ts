@@ -46,7 +46,7 @@ Teams Meeting Action Tracker
     };
   }
 
-  async sendEmail(to: string, subject: string, body: string) {
+  async sendEmail(to: string, subject: string, body: string, html?: string) {
     await this.transporter.sendMail({
       from:
         this.configService.get<string>('SMTP_FROM') ||
@@ -54,6 +54,7 @@ Teams Meeting Action Tracker
       to,
       subject,
       text: body,
+      html,
     });
 
     return {
