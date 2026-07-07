@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
 import * as dns from 'node:dns';
+import * as net from 'net';
 
 // Force IPv4 before IPv6
 dns.setDefaultResultOrder('ipv4first');
@@ -25,6 +26,22 @@ export class EmailService {
     this.logger.log(`SMTP_SECURE: ${secure}`);
     this.logger.log(`SMTP_USER configured: ${!!user}`);
 
+
+
+    const socket = net.createConnection({
+      host: 'smtp.office365.com',
+      port: 587,
+    });
+
+    socket.on('connect', () => {
+      console.log('TCP CONNECT SUCCESS');
+      socket.destroy();
+    });
+
+    socket.on('error', (err) => {
+      console.error('TCP CONNECT ERROR', err);
+    });
+
     this.transporter = nodemailer.createTransport({
       host,
       port,
@@ -35,6 +52,10 @@ export class EmailService {
       },
       logger: true,
       debug: true,
+      connectionTimeout: 30000,
+      greetingTimeout: 30000,
+      socketTimeout: 30000,
+
       tls: {
         rejectUnauthorized: false,
       },
