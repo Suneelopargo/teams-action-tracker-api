@@ -1,22 +1,13 @@
-import { ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 
+import { GraphService } from '../graph/graph.service';
 import { EmailService } from './email.service';
 
 describe('EmailService', () => {
   let service: EmailService;
 
-  const configServiceMock = {
-    get: jest.fn((key: string) => {
-      const values: Record<string, string> = {
-        SMTP_HOST: 'localhost',
-        SMTP_PORT: '1025',
-        SMTP_USER: 'test@example.com',
-        SMTP_PASS: 'password',
-      };
-
-      return values[key];
-    }),
+  const graphServiceMock = {
+    sendMail: jest.fn(),
   };
 
   beforeEach(async () => {
@@ -24,8 +15,8 @@ describe('EmailService', () => {
       providers: [
         EmailService,
         {
-          provide: ConfigService,
-          useValue: configServiceMock,
+          provide: GraphService,
+          useValue: graphServiceMock,
         },
       ],
     }).compile();
