@@ -70,6 +70,7 @@ export class ReminderService {
 
     for (const [recipientEmail, recipientItems] of itemsByRecipient.entries()) {
       try {
+        const primaryActionItemId = recipientItems[0]?.id;
         const ownerName =
           recipientItems[0].assignedUser?.name ??
           recipientItems[0].ownerName ??
@@ -85,17 +86,17 @@ export class ReminderService {
           htmlBody,
         );
 
-        for (const item of recipientItems) {
-          await this.prisma.emailLog.create({
-            data: {
-              actionItemId: item.id,
-              emailTo: recipientEmail,
-              subject,
-              status: 'SENT',
-              sentAt: new Date(),
-            },
-          });
+        await this.prisma.emailLog.create({
+          data: {
+            actionItemId: primaryActionItemId,
+            emailTo: recipientEmail,
+            subject,
+            status: 'SENT',
+            sentAt: new Date(),
+          },
+        });
 
+        for (const item of recipientItems) {
           await this.prisma.actionItem.update({
             where: {
               id: item.id,
@@ -118,19 +119,17 @@ export class ReminderService {
           error,
         );
 
-        for (const item of recipientItems) {
-          try {
-            await this.prisma.emailLog.create({
-              data: {
-                actionItemId: item.id,
-                emailTo: recipientEmail,
-                subject: this.generateReminderSubject(recipientItems.length),
-                status: 'FAILED',
-              },
-            });
-          } catch (logError) {
-            console.error('Failed to create EmailLog entry', logError);
-          }
+        try {
+          await this.prisma.emailLog.create({
+            data: {
+              actionItemId: recipientItems[0]?.id,
+              emailTo: recipientEmail,
+              subject: this.generateReminderSubject(recipientItems.length),
+              status: 'FAILED',
+            },
+          });
+        } catch (logError) {
+          console.error('Failed to create EmailLog entry', logError);
         }
       }
     }

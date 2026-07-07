@@ -113,7 +113,27 @@ describe('ReminderService', () => {
       expect.stringContaining('<strong>1</strong> pending action item'),
     );
 
-    expect(prismaServiceMock.emailLog.create).toHaveBeenCalledTimes(3);
+    expect(prismaServiceMock.emailLog.create).toHaveBeenCalledTimes(2);
+    expect(prismaServiceMock.emailLog.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          actionItemId: 1,
+          emailTo: 'alice@example.com',
+          subject: 'Reminder: 2 Pending Action Items',
+          status: 'SENT',
+        }),
+      }),
+    );
+    expect(prismaServiceMock.emailLog.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          actionItemId: 3,
+          emailTo: 'bob@example.com',
+          subject: 'Reminder: 1 Pending Action Item',
+          status: 'SENT',
+        }),
+      }),
+    );
     expect(prismaServiceMock.actionItem.update).toHaveBeenCalledTimes(3);
     expect(prismaServiceMock.actionItem.update).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -168,21 +188,11 @@ describe('ReminderService', () => {
 
     expect(emailServiceMock.sendEmail).toHaveBeenCalledTimes(1);
     expect(prismaServiceMock.actionItem.update).not.toHaveBeenCalled();
-    expect(prismaServiceMock.emailLog.create).toHaveBeenCalledTimes(2);
+    expect(prismaServiceMock.emailLog.create).toHaveBeenCalledTimes(1);
     expect(prismaServiceMock.emailLog.create).toHaveBeenCalledWith(
       expect.objectContaining({
         data: expect.objectContaining({
           actionItemId: 10,
-          emailTo: 'failed@example.com',
-          subject: 'Reminder: 2 Pending Action Items',
-          status: 'FAILED',
-        }),
-      }),
-    );
-    expect(prismaServiceMock.emailLog.create).toHaveBeenCalledWith(
-      expect.objectContaining({
-        data: expect.objectContaining({
-          actionItemId: 11,
           emailTo: 'failed@example.com',
           subject: 'Reminder: 2 Pending Action Items',
           status: 'FAILED',
