@@ -8,6 +8,7 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { CreateMeetingDto } from './dto/create-meeting.dto';
+import { SyncGraphMeetingDto } from './dto/sync-graph-meeting.dto';
 import { MeetingService } from './meeting.service';
 
 @ApiTags('Meetings')
@@ -26,5 +27,11 @@ export class MeetingController {
   @Roles(UserRole.ADMIN)
   createMeeting(@Body() dto: CreateMeetingDto) {
     return this.meetingService.create(dto);
+  }
+
+  @Post('graph/sync')
+  @Roles(UserRole.ADMIN)
+  syncMeetingFromGraph(@Body() dto: SyncGraphMeetingDto) {
+    return this.meetingService.syncFromGraph(dto);
   }
 }

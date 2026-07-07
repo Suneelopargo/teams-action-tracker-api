@@ -9,6 +9,7 @@ describe('MeetingController', () => {
   const meetingServiceMock = {
     create: jest.fn(),
     findAll: jest.fn(),
+    syncFromGraph: jest.fn(),
   };
 
   beforeEach(async () => {
